@@ -63,12 +63,12 @@ class Mycelium:
 
 
     def grow(self):
-#        self.handle_list(rhizomorphe.lib_alienvault.fetch_sub(self.domain))
-#        self.handle_list(rhizomorphe.lib_certspotter.fetch_sub(self.domain))
-#        self.handle_list(rhizomorphe.lib_crt.fetch_sub(self.domain))
-#        self.handle_list(rhizomorphe.lib_hackertarget.fetch_sub(self.domain))
-        self.handle_list(rhizomorphe.lib_omnisint.fetch_sub(self.domain))
-#        self.handle_list(rhizomorphe.lib_rapiddns.fetch_sub(self.domain))
-#        self.handle_list(rhizomorphe.lib_riddler.fetch_sub(self.domain))
-#        self.handle_list(rhizomorphe.lib_threatminer.fetch_sub(self.domain))
-#        self.handle_list(rhizomorphe.lib_urlscan.fetch_sub(self.domain))
+        self.handle_list(rhizomorphe.lib_alienvault.fetch_sub(self.domain))
+        self.handle_list(rhizomorphe.lib_certspotter.fetch_sub(self.domain))
+        self.handle_list(rhizomorphe.lib_crt.fetch_sub(self.domain))
+        self.handle_list(rhizomorphe.lib_hackertarget.fetch_sub(self.domain))
+#        self.handle_list(rhizomorphe.lib_omnisint.fetch_sub(self.domain)) ##### WIP
+        self.handle_list(rhizomorphe.lib_rapiddns.fetch_sub(self.domain))
+        self.handle_list(rhizomorphe.lib_riddler.fetch_sub(self.domain))
+        self.handle_list(rhizomorphe.lib_threatminer.fetch_sub(self.domain))
+        self.handle_list(rhizomorphe.lib_urlscan.fetch_sub(self.domain))
