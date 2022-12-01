@@ -1,9 +1,9 @@
 import socket
 from lib.rhizomorphe import lib_alienvault
+from lib.rhizomorphe import lib_archive
 from lib.rhizomorphe import lib_certspotter
 from lib.rhizomorphe import lib_crt
 from lib.rhizomorphe import lib_hackertarget
-from lib.rhizomorphe import lib_omnisint
 from lib.rhizomorphe import lib_rapiddns
 from lib.rhizomorphe import lib_riddler
 from lib.rhizomorphe import lib_threatminer
@@ -46,6 +46,8 @@ class Mycelium:
             return False
 
     def handle_list(self,list):
+        initial_counter=0
+        additionnal_counter=0
         for item in list:
             if item[-1]=='.':
                 item = item[:-1]
@@ -58,17 +60,20 @@ class Mycelium:
             if item.endswith(self.domain):
                 if item not in self.fqdn_list:
                     self.fqdn_list.append(item)
+                    initial_counter += 1
             elif (item.lower() not in self.additionnal_list):
                 self.additionnal_list.append(item.lower())
+                additionnal_counter +=1
+        print("Initial :{} - Additional:{}".format(initial_counter,additionnal_counter))
 
 
     def grow(self):
-        self.handle_list(lib_alienvault.fetch_sub(self.domain))
-        self.handle_list(lib_certspotter.fetch_sub(self.domain))
-        self.handle_list(lib_crt.fetch_sub(self.domain))
-        self.handle_list(lib_hackertarget.fetch_sub(self.domain))
-#        self.handle_list(lib_omnisint.fetch_sub(self.domain)) ##### WIP
-        self.handle_list(lib_rapiddns.fetch_sub(self.domain))
-        self.handle_list(lib_riddler.fetch_sub(self.domain))
-        self.handle_list(lib_threatminer.fetch_sub(self.domain))
-        self.handle_list(lib_urlscan.fetch_sub(self.domain))
+#        self.handle_list(lib_alienvault.fetch_sub(self.domain))
+        self.handle_list(lib_archive.fetch_sub(self.domain))
+#        self.handle_list(lib_certspotter.fetch_sub(self.domain))
+#        self.handle_list(lib_crt.fetch_sub(self.domain))
+#        self.handle_list(lib_hackertarget.fetch_sub(self.domain))
+#        self.handle_list(lib_rapiddns.fetch_sub(self.domain))
+#        self.handle_list(lib_riddler.fetch_sub(self.domain))
+#        self.handle_list(lib_threatminer.fetch_sub(self.domain))
+#        self.handle_list(lib_urlscan.fetch_sub(self.domain))
