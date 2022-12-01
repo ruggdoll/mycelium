@@ -10,6 +10,11 @@ __Usage:__
 
 python3 mycelium.py DOMAIN.TLD
 
+__TODO:__
+- Add collectors
+- Clean outputs
+- Handle args
+
 __News:__
 
 [30/11/2022] : Initial Commit
