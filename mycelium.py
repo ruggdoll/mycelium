@@ -1,4 +1,4 @@
-from lib_mycelium import Mycelium
+from lib.lib_mycelium import Mycelium
 import argparse
 
 if __name__ == "__main__":

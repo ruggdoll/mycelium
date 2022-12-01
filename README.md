@@ -17,4 +17,5 @@ __TODO:__
 
 __News:__
 
-[30/11/2022] : Initial Commit
+[2022/12/01] : Libraries refactoring
+[2022/11/30] : Initial Commit
