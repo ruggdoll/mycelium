@@ -12,9 +12,9 @@ from lib.rhizomorphe import lib_urlscan
 
 class Mycelium:
     def __init__(self, domain):
-        self.domain=domain
-        self.sub_list=[]
-        self.other_list=[]
+        self.domain = domain
+        self.sub_list = []
+        self.other_list = []
 
     def check_ip(self,candidate):
         try:
@@ -28,7 +28,7 @@ class Mycelium:
                 return False
                 
     def check_forbidden(self,candidate):
-        forbidden=(
+        forbidden = (
             'googlemail.com',
             'google.com',
             'cloudflaressl.com',
@@ -41,9 +41,9 @@ class Mycelium:
 
     def handle_list(self,list):
         for item in list:
-            if item[-1]=='.':
+            if item[-1] == '.':
                 item = item[:-1]
-            if item[:2]=="*.":
+            if item[:2] == "*.":
                 item=item[2:]
             if self.check_forbidden(item.lower()):
                 continue
