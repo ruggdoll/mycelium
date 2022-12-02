@@ -1,4 +1,4 @@
-import socket
+import socket,sys,time
 from lib.rhizomorphe import lib_alienvault
 from lib.rhizomorphe import lib_archive
 from lib.rhizomorphe import lib_certspotter
@@ -10,17 +10,11 @@ from lib.rhizomorphe import lib_threatminer
 from lib.rhizomorphe import lib_urlscan
 
 
-# Freely inspired by :
-# https://github.com/D3Ext/AORT
-# https://github.com/gfek/Lepus
-# https://github.com/ruggdoll/certific8
-
 class Mycelium:
     def __init__(self, domain):
         self.domain=domain
-        self.fqdn_list=[]
-        self.additionnal_list=[]
-#        self.handle_list({self.domain})
+        self.sub_list=[]
+        self.other_list=[]
 
     def check_ip(self,candidate):
         try:
@@ -46,8 +40,6 @@ class Mycelium:
             return False
 
     def handle_list(self,list):
-        initial_counter=0
-        additionnal_counter=0
         for item in list:
             if item[-1]=='.':
                 item = item[:-1]
@@ -58,22 +50,49 @@ class Mycelium:
             if self.check_ip(item):
                 continue
             if item.endswith(self.domain):
-                if item not in self.fqdn_list:
-                    self.fqdn_list.append(item)
-                    initial_counter += 1
-            elif (item.lower() not in self.additionnal_list):
-                self.additionnal_list.append(item.lower())
-                additionnal_counter +=1
-        print("Initial :{} - Additional:{}".format(initial_counter,additionnal_counter))
-
+                if item not in self.sub_list:
+                    self.sub_list.append(item)
+            elif (item.lower() not in self.other_list):
+                self.other_list.append(item.lower())
+    
+    def print_progress(self,list,text):
+        for i in range(0, 101, 10):
+            print("\r>> {} :{}%".format(text,i), end='')
+            sys.stdout.flush()
+            self.handle_list(list)
 
     def grow(self):
-#        self.handle_list(lib_alienvault.fetch_sub(self.domain))
-        self.handle_list(lib_archive.fetch_sub(self.domain))
-#        self.handle_list(lib_certspotter.fetch_sub(self.domain))
-#        self.handle_list(lib_crt.fetch_sub(self.domain))
-#        self.handle_list(lib_hackertarget.fetch_sub(self.domain))
-#        self.handle_list(lib_rapiddns.fetch_sub(self.domain))
-#        self.handle_list(lib_riddler.fetch_sub(self.domain))
-#        self.handle_list(lib_threatminer.fetch_sub(self.domain))
-#        self.handle_list(lib_urlscan.fetch_sub(self.domain))
+        print("Working please wait.")
+        self.print_progress(lib_alienvault.fetch_sub(self.domain),"Alienvault")
+        self.print_progress(lib_archive.fetch_sub(self.domain),"Archive.org")
+        self.print_progress(lib_certspotter.fetch_sub(self.domain),"Certspotter")
+        self.print_progress(lib_crt.fetch_sub(self.domain),"CRT.sh")
+        self.print_progress(lib_hackertarget.fetch_sub(self.domain),"Hackertarget")
+        self.print_progress(lib_rapiddns.fetch_sub(self.domain),"Rapiddns")
+        self.print_progress(lib_riddler.fetch_sub(self.domain),"Riddler")
+        self.print_progress(lib_threatminer.fetch_sub(self.domain),"Threatminer")
+        self.print_progress(lib_urlscan.fetch_sub(self.domain),"Urlscan")
+        print("\r",end='')
+        sys.stdout.flush()
+
+    def CSV_output(self):
+        print("\n----8<----CSV_STARTS_HERE----8<----")
+        print("\"Index\";\"Domain\";\"Type\";")
+        i=1
+        for sub in self.sub_list:
+            print("\"{}\";\"{}\";\"subdomain\";".format(i,sub))
+            i += 1 
+        for other in self.other_list:
+            print("\"{}\";\"{}\";\"other\";".format(i,other))
+            i += 1
+        print("----8<----CSV_STOPS_HERE----8<----")
+    
+    def std_output(self):
+        print("\nFound {} subdomains and {} linked domains".format(
+            len(self.sub_list),
+            len(self.other_list)
+            ))
+        for sub in self.sub_list:
+            print("Subdomain : {}".format(sub))
+        for other in self.other_list:
+            print("Linked : {}".format(other))
