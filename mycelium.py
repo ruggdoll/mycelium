@@ -4,7 +4,7 @@ import argparse
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("domain",help = "Domain name to analyse")
-    parser.add_argument("--CSV", help="format output to CSV",action="store_true")
+    parser.add_argument("--CSV", help = "format output to CSV",action = "store_true")
     args = parser.parse_args()
 
     mushroom = Mycelium(args.domain)
