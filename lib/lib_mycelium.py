@@ -12,9 +12,9 @@ from lib.rhizomorphe import lib_urlscan
 
 class Mycelium:
     def __init__(self, domain):
-        self.domain = domain
-        self.sub_list = []
-        self.other_list = []
+        self.domain=domain
+        self.sub_list=[]
+        self.other_list=[]
 
     def check_ip(self,candidate):
         try:
@@ -28,7 +28,7 @@ class Mycelium:
                 return False
                 
     def check_forbidden(self,candidate):
-        forbidden = (
+        forbidden=(
             'googlemail.com',
             'google.com',
             'cloudflaressl.com',
@@ -41,9 +41,9 @@ class Mycelium:
 
     def handle_list(self,list):
         for item in list:
-            if item[-1] == '.':
+            if item[-1]=='.':
                 item = item[:-1]
-            if item[:2] == "*.":
+            if item[:2]=="*.":
                 item=item[2:]
             if self.check_forbidden(item.lower()):
                 continue
@@ -60,22 +60,58 @@ class Mycelium:
             print("\r>> {} :{}%".format(text,i), end='')
             sys.stdout.flush()
             self.handle_list(list)
+        print("\r")
 
     def grow(self):
-        print("Working please wait.")
-        self.print_progress(lib_alienvault.fetch_sub(self.domain),"Alienvault")
-        self.print_progress(lib_archive.fetch_sub(self.domain),"Archive.org")
-        self.print_progress(lib_certspotter.fetch_sub(self.domain),"Certspotter")
-        self.print_progress(lib_crt.fetch_sub(self.domain),"CRT.sh")
-        self.print_progress(lib_hackertarget.fetch_sub(self.domain),"Hackertarget")
-        self.print_progress(lib_rapiddns.fetch_sub(self.domain),"Rapiddns")
-        self.print_progress(lib_riddler.fetch_sub(self.domain),"Riddler")
-        self.print_progress(lib_threatminer.fetch_sub(self.domain),"Threatminer")
-        self.print_progress(lib_urlscan.fetch_sub(self.domain),"Urlscan")
-        print("\r",end='')
-        sys.stdout.flush()
+        print("Data aquisition started")
+        try:
+            self.print_progress(lib_alienvault.fetch_sub(self.domain),"Alienvault")
+        except:
+            print("worker Alienvault failed!\n")
+            pass
+        try:
+            self.print_progress(lib_archive.fetch_sub(self.domain),"Archive.org")
+        except:
+            print("worker Archive.org failed!\n")
+            pass
+        try:
+            self.print_progress(lib_certspotter.fetch_sub(self.domain),"Certspotter")
+        except:
+            print("worker Certspotter failed!\n")
+            pass
+        try:
+            self.print_progress(lib_crt.fetch_sub(self.domain),"CRT.sh")
+        except:
+            print("worker CRT.sh failed!\n")
+            pass
+        try:
+            self.print_progress(lib_hackertarget.fetch_sub(self.domain),"Hackertarget")
+        except:
+            print("worker Hackertarget failed!\n")
+            pass
+        try:
+            self.print_progress(lib_rapiddns.fetch_sub(self.domain),"Rapiddns")
+        except:
+            print("worker Rapiddns failed!\n")
+            pass
+        try:
+            self.print_progress(lib_riddler.fetch_sub(self.domain),"Riddler")
+        except:
+            print("worker Riddler failed!\n")
+            pass
+        try:
+            self.print_progress(lib_threatminer.fetch_sub(self.domain),"Threatminer")
+        except:
+            print("worker Threatminer failed!\n")
+            pass
+        try:
+            self.print_progress(lib_urlscan.fetch_sub(self.domain),"Urlscan")
+        except:
+            print("worker urlscan failed!\n")
+            pass
+        print("Data acquisition finished.\n")
 
-    def CSV_output(self):
+    def Domain_CSV_output(self):
         print("\n----8<----CSV_STARTS_HERE----8<----")
         print("\"Index\";\"Domain\";\"Type\";")
         i=1
@@ -87,7 +123,7 @@ class Mycelium:
             i += 1
         print("----8<----CSV_STOPS_HERE----8<----")
     
-    def std_output(self):
+    def Domain_std_output(self):
         print("\nFound {} subdomains and {} linked domains".format(
             len(self.sub_list),
             len(self.other_list)
@@ -96,3 +132,19 @@ class Mycelium:
             print("Subdomain : {}".format(sub))
         for other in self.other_list:
             print("Linked : {}".format(other))
+
+    def resolve(self):
+        print("Performing DNS resolution, please wait...")
+        domain_list={}
+        for dom in self.sub_list:
+            try:
+                domain_list[dom]=str(socket.gethostbyname(dom))
+            except:
+                continue
+        for dom in self.other_list:
+            try:
+                domain_list[dom]=str(socket.gethostbyname(dom))
+            except:
+                continue
+        print("DNS resolutions finished.")
+        return domain_list
