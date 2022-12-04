@@ -135,15 +135,16 @@ class Mycelium:
 
     def resolve(self):
         print("Performing DNS resolution, please wait...")
-        domain_list={}
-        for dom in self.sub_list:
+        
+        domain_list = {}
+        for dom in (self.sub_list + self.other_list):
             try:
-                domain_list[dom]=str(socket.gethostbyname(dom))
-            except:
-                continue
-        for dom in self.other_list:
-            try:
-                domain_list[dom]=str(socket.gethostbyname(dom))
+                datas=socket.gethostbyname_ex(dom)
+                list=[]
+                for i in range(1,len(datas)):
+                    if (''.join(datas[i]) != '') and (dom != ''.join(datas[i])):
+                        list.append(datas[i])
+                domain_list[dom]=list
             except:
                 continue
         print("DNS resolutions finished.")

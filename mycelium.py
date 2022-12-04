@@ -17,15 +17,22 @@ if __name__ == "__main__":
         mylist=mushroom.resolve()
         if args.graph:
             G = GraphVisualization()
-            for dom in mushroom.sub_list:
+            for dom in (mushroom.sub_list + mushroom.other_list):
                 try:
-                    G.addEdge(dom,mylist[dom])
+                    for itemlist in mylist[dom]:
+                        for item in itemlist:
+                            G.addEdge(dom,item)
                 except:
                     continue
             G.visualize(mushroom.domain)
         else:
-            for res in mylist:
-                print("{}: {}".format(res,mylist[res]))
+            for dom in (mushroom.sub_list + mushroom.other_list):
+                try:
+                    for domlist in mylist[dom]:
+                        for item in itemlist:
+                            print("{}: {}".format(dom,item))
+                except:
+                    continue
     else: 
         if args.CSV:
             mushroom.Domain_CSV_output()

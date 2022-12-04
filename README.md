@@ -16,9 +16,11 @@ Freely inspired from different projects:
 - https://github.com/ruggdoll/certific8
 
 __Todo list:__
+- Fix loops in graphs [Bugfix]
 - Add collectors
+- Add colors
 - PEP8
-- looks like it doesn't handle multiIP
+
 
 __News:__
 
