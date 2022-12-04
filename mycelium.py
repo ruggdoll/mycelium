@@ -28,7 +28,7 @@ if __name__ == "__main__":
         else:
             for dom in (mushroom.sub_list + mushroom.other_list):
                 try:
-                    for domlist in mylist[dom]:
+                    for itemlist in mylist[dom]:
                         for item in itemlist:
                             print("{}: {}".format(dom,item))
                 except:
