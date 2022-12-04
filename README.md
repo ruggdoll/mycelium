@@ -18,6 +18,7 @@ Freely inspired from different projects:
 __Todo list:__
 - Add collectors
 - PEP8
+- looks like it doesn't handle multiIP
 
 __News:__
 
