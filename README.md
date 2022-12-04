@@ -20,6 +20,7 @@ __Todo list:__
 - PEP8
 
 __News:__
+
 [2022/12/04] : Added DNS Resolutions and network graph
 
 [2022/12/01] : Libraries refactoring
