@@ -21,10 +21,10 @@ __Todo list:__
 
 __News:__
 
-[2022/12/06] : Added Colors in graphs and fixed loops
+**2022/12/06** : Added Colors in graphs and fixed loops
 
-[2022/12/04] : Added DNS Resolutions and network graph
+**2022/12/04** : Added DNS Resolutions and network graph
 
-[2022/12/01] : Libraries refactoring
+**2022/12/01** : Libraries refactoring
 
-[2022/11/30] : Initial Commit
+**2022/11/30** : Initial Commit
