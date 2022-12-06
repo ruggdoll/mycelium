@@ -1,6 +1,6 @@
 import argparse
 from lib.lib_mycelium import Mycelium
-from lib.lib_graph import GraphVisualization
+from lib.lib_tools import GraphVisualization
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
