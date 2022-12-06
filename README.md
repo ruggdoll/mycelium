@@ -1,5 +1,5 @@
 # Mycelium
-From a FQDN to related domains and subdomains using mostly OSINT techniques
+From a FQDN to related domains and subdomains network graph or listing using mostly OSINT techniques!
 
 __Usage:__
 
@@ -16,13 +16,12 @@ Freely inspired from different projects:
 - https://github.com/ruggdoll/certific8
 
 __Todo list:__
-- Fix loops in graphs [Bugfix]
 - Add collectors
-- Add colors
 - PEP8
 
-
 __News:__
+
+[2022/12/06] : Added Colors in graphs and fixed loops
 
 [2022/12/04] : Added DNS Resolutions and network graph
 
