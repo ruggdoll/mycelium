@@ -8,7 +8,7 @@ class GraphVisualization:
     def __init__(self):
         self.visual = []
             
-    def addEdge(self, a, b):
+    def addLink(self, a, b):
         temp = [a, b]
         self.visual.append(temp)
 

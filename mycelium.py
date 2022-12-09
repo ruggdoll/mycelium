@@ -7,7 +7,7 @@ if __name__ == "__main__":
     parser.add_argument("domain",help = "Domain name to analyse")
     parser.add_argument("--CSV", help="Prints data in CSV format",action="store_true")
     parser.add_argument("--resolve", help="Performs a DNS resolution",action="store_true")
-    parser.add_argument("--graph", help="Createsa IP-Domain graph named DOMAIN.TLD.html",action="store_true")
+    parser.add_argument("--graph", help="Creates a IP-Domain graph named DOMAIN.TLD.html",action="store_true")
     args = parser.parse_args()
 
     mushroom = Mycelium(args.domain)
@@ -21,7 +21,7 @@ if __name__ == "__main__":
                 try:
                     for itemlist in mylist[dom]:
                         for item in itemlist:
-                            G.addEdge(dom,item)
+                            G.visual.append([dom,item])
                 except:
                     continue
             G.visualize(mushroom.domain)
