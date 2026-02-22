@@ -13,30 +13,42 @@ if __name__ == "__main__":
     mushroom = Mycelium(args.domain)
     mushroom.grow()
 
+    mylist = {}
     if args.resolve:
-        mylist=mushroom.resolve()
-        if args.graph:
-            G = GraphVisualization()
-            for dom in (mushroom.sub_list + mushroom.other_list):
-                try:
-                    for itemlist in mylist[dom]:
-                        for item in itemlist:
-                            G.visual.append([dom,item])
-                except:
-                    continue
-            G.visualize(mushroom.domain)
-        else:
-            for dom in (mushroom.sub_list + mushroom.other_list):
-                try:
-                    for itemlist in mylist[dom]:
-                        for item in itemlist:
-                            print("{}: {}".format(dom,item))
-                except:
-                    continue
+        mylist = mushroom.resolve()
+
+    if args.graph:
+        G = GraphVisualization()
+        root = mushroom.domain
+
+        for dom in mushroom.sub_list:
+            G.addLink(root, dom, kind="subdomain")
+
+        for dom in mushroom.other_list:
+            source = mushroom.domain_sources.get(dom, "")
+            G.addLink(root, dom, kind="other", label=source)
+
+        for dom in (mushroom.sub_list + mushroom.other_list):
+            try:
+                for itemlist in mylist[dom]:
+                    for item in itemlist:
+                        G.addLink(dom, item, kind="ip")
+            except:
+                continue
+
+        G.visualize(root)
+
+    elif args.resolve:
+        for dom in (mushroom.sub_list + mushroom.other_list):
+            try:
+                for itemlist in mylist[dom]:
+                    for item in itemlist:
+                        print("{}: {}".format(dom, item))
+            except:
+                continue
+
+    elif args.CSV:
+        mushroom.Domain_CSV_output()
+
     else:
-        if args.graph:
-            print("Warning: --graph requires --resolve to work.")
-        if args.CSV:
-            mushroom.Domain_CSV_output()
-        else:
-            mushroom.Domain_std_output()
+        mushroom.Domain_std_output()

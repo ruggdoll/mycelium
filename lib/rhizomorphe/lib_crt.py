@@ -1,27 +1,20 @@
 import requests
-import re
 import json
- 
+
 def fetch_sub(domain):
     session = requests.session()
-    ua = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0)"
-    " Gecko/20100101"
-    " Firefox/40.1"
-    session.headers = {'User-Agent': ua}
-
-    url = "https://crt.sh/?q={}&output=json".format(domain)
-    pattern = re.compile(r'"common_name": "(.*?)"')
+    session.headers = {'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1"}
+    url = "https://crt.sh/?q=%25.{}&output=json".format(domain)
+    domains = []
     try:
-        req = session.get(url,timeout=20)
+        req = session.get(url, timeout=30)
         req.raise_for_status()
-        rawlist = json.dumps(json.loads(req.text),indent=4)
-        domains = sorted(set(re.findall(pattern, rawlist)))
-
-    except requests.exceptions.RequestException as err:
-        print ("OOps: Something went wrong",err)
-        if len(domains) > 0:
-            return domains
-        else:
-            return []
-
+        for entry in json.loads(req.text):
+            for name in entry.get("name_value", "").split("\n"):
+                name = name.strip().lstrip("*.")
+                if name.endswith(domain):
+                    domains.append(name)
+        domains = sorted(set(domains))
+    except (requests.exceptions.RequestException, ValueError) as err:
+        print("Oops: Something went wrong", err)
     return domains

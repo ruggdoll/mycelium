@@ -4,9 +4,8 @@ from lib.rhizomorphe import lib_archive
 from lib.rhizomorphe import lib_certspotter
 from lib.rhizomorphe import lib_crt
 from lib.rhizomorphe import lib_hackertarget
+from lib.rhizomorphe import lib_jldc
 from lib.rhizomorphe import lib_rapiddns
-from lib.rhizomorphe import lib_riddler
-from lib.rhizomorphe import lib_threatminer
 from lib.rhizomorphe import lib_urlscan
 
 
@@ -15,6 +14,7 @@ class Mycelium:
         self.domain=domain
         self.sub_list=[]
         self.other_list=[]
+        self.domain_sources={}
 
     def check_ip(self,candidate):
         try:
@@ -39,7 +39,7 @@ class Mycelium:
         else:
             return False
 
-    def handle_list(self,list):
+    def handle_list(self,list,source=""):
         for item in list:
             if item[-1]=='.':
                 item = item[:-1]
@@ -49,14 +49,20 @@ class Mycelium:
                 continue
             if self.check_ip(item):
                 continue
+            if item == self.domain:
+                continue
             if item.endswith(self.domain):
                 if item not in self.sub_list:
                     self.sub_list.append(item)
+                    if source:
+                        self.domain_sources[item] = source
             elif (item.lower() not in self.other_list):
                 self.other_list.append(item.lower())
+                if source:
+                    self.domain_sources[item.lower()] = source
     
     def print_progress(self,list,text):
-        self.handle_list(list)
+        self.handle_list(list, source=text)
         print(">> {} :done".format(text))
 
     def grow(self):
@@ -87,19 +93,14 @@ class Mycelium:
             print("worker Hackertarget failed!\n")
             pass
         try:
+            self.print_progress(lib_jldc.fetch_sub(self.domain),"JLDC")
+        except:
+            print("worker JLDC failed!\n")
+            pass
+        try:
             self.print_progress(lib_rapiddns.fetch_sub(self.domain),"Rapiddns")
         except:
             print("worker Rapiddns failed!\n")
-            pass
-        try:
-            self.print_progress(lib_riddler.fetch_sub(self.domain),"Riddler")
-        except:
-            print("worker Riddler failed!\n")
-            pass
-        try:
-            self.print_progress(lib_threatminer.fetch_sub(self.domain),"Threatminer")
-        except:
-            print("worker Threatminer failed!\n")
             pass
         try:
             self.print_progress(lib_urlscan.fetch_sub(self.domain),"Urlscan")

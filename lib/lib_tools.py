@@ -7,35 +7,62 @@ class GraphVisualization:
 
     def __init__(self):
         self.visual = []
-            
-    def addLink(self, a, b):
-        temp = [a, b]
-        self.visual.append(temp)
 
-    def visualize(self,domain):
+    def addLink(self, a, b, kind="subdomain", label=""):
+        self.visual.append({"from": a, "to": b, "kind": kind, "label": label})
+
+    def visualize(self, domain):
         net = Network(height="100vh", width="100%", bgcolor="#0d1117", font_color="#c9d1d9")
-        for nodes in self.visual:
-            if nodes[0]==nodes[1]:
+
+        # Root domain — épinglé au centre
+        net.add_node(domain, label=domain, shape="star", size=32,
+            color={"background": "#e3b341", "border": "#f0c059",
+                   "highlight": {"background": "#f0c059", "border": "#ffd77a"}},
+            font={"size": 17, "color": "#ffffff"},
+            x=0, y=0, physics=False)
+
+        added_nodes = {domain}
+
+        for link in self.visual:
+            a, b, kind, label = link["from"], link["to"], link["kind"], link["label"]
+            if a == b:
                 continue
-            for node in nodes:
-                NetObj = NetObject(node)
-                if NetObj.isHost == True:
-                    net.add_node(node, label=node, shape="diamond", size=16,
-                        color={"background":"#1f6feb","border":"#58a6ff",
-                               "highlight":{"background":"#388bfd","border":"#79c0ff"}},
-                        font={"size":13,"color":"#e6edf3"})
-                elif NetObj.isHost == False:
-                    if NetObj.isPrivateIP == True:
-                        net.add_node(node, label=node, shape="dot", size=12,
-                            color={"background":"#da3633","border":"#f85149",
-                                   "highlight":{"background":"#f85149","border":"#ff7b72"}},
-                            font={"size":11,"color":"#e6edf3"})
+
+            if b not in added_nodes:
+                NetObj = NetObject(b)
+                if NetObj.isHost:
+                    if b.endswith("." + domain) or b == domain:
+                        short_label = b[: b.rfind("." + domain)]
+                        net.add_node(b, label=short_label, title=b, shape="diamond", size=16,
+                            color={"background": "#1f6feb", "border": "#58a6ff",
+                                   "highlight": {"background": "#388bfd", "border": "#79c0ff"}},
+                            font={"size": 13, "color": "#e6edf3"})
                     else:
-                        net.add_node(node, label=node, shape="dot", size=12,
-                            color={"background":"#238636","border":"#3fb950",
-                                   "highlight":{"background":"#2ea043","border":"#56d364"}},
-                            font={"size":11,"color":"#e6edf3"})
-            net.add_edge(nodes[0], nodes[1], color={"color":"#484f58","opacity":0.8}, width=1.5)
+                        net.add_node(b, label=b, shape="square", size=14,
+                            color={"background": "#6e40c9", "border": "#bc8cff",
+                                   "highlight": {"background": "#8957e5", "border": "#d2a8ff"}},
+                            font={"size": 13, "color": "#e6edf3"})
+                else:
+                    if NetObj.isPrivateIP:
+                        net.add_node(b, label=b, shape="dot", size=11,
+                            color={"background": "#da3633", "border": "#f85149",
+                                   "highlight": {"background": "#f85149", "border": "#ff7b72"}},
+                            font={"size": 11, "color": "#e6edf3"})
+                    else:
+                        net.add_node(b, label=b, shape="dot", size=11,
+                            color={"background": "#238636", "border": "#3fb950",
+                                   "highlight": {"background": "#2ea043", "border": "#56d364"}},
+                            font={"size": 11, "color": "#e6edf3"})
+                added_nodes.add(b)
+
+            if kind == "subdomain":
+                net.add_edge(a, b, color={"color": "#58a6ff", "opacity": 0.7}, width=1.5)
+            elif kind == "other":
+                net.add_edge(a, b, color={"color": "#bc8cff", "opacity": 0.6},
+                    width=1.2, dashes=True, title=label if label else "")
+            else:  # ip
+                net.add_edge(a, b, color={"color": "#484f58", "opacity": 0.6}, width=1)
+
         net.set_options("""
         {
           "physics": {

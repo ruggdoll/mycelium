@@ -1,26 +1,16 @@
 import requests
 import re
- 
+
 def fetch_sub(domain):
     session = requests.session()
-    ua = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0)"
-    " Gecko/20100101"
-    " Firefox/40.1"
-    session.headers = {'User-Agent': ua}
-
+    session.headers = {'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1"}
     url = "https://api.certspotter.com/v1/issuances?domain={}&include_subdomains=true&expand=dns_names".format(domain)
-    pattern = r"([\w\d][\w\d\-\.]*\.{0})"
-
+    pattern = r"([\w\d][\w\d\-\.]*\.{0})".format(re.escape(domain))
+    domains = []
     try:
-        req = session.get(url,timeout=20)
+        req = session.get(url, timeout=20)
         req.raise_for_status()
-        domains = sorted(set(re.findall(pattern.format(domain.replace(".", "\.")), req.text)))
-
+        domains = sorted(set(re.findall(pattern, req.text)))
     except requests.exceptions.RequestException as err:
-        print ("OOps: Something went wrong",err)
-        if len(domains) > 0:
-            return domains
-        else:
-            return []
-
+        print("Oops: Something went wrong", err)
     return domains
