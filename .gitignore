@@ -1,0 +1,6 @@
+*.html
+  __pycache__/
+  myvenv/
+  lib/bindings/
+  lib/tom-select/
+  lib/vis-9.1.2/
