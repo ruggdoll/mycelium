@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+import struct
 from pyvis.network import Network
 import socket
 
@@ -22,17 +22,16 @@ class GraphVisualization:
                 if NetObj.isHost == True:
                     net.add_node(node,label=node,color="blue",shape="diamond",size=10)
                 elif NetObj.isHost == False:
-                    if NetObj.is_private_ip ==True:
+                    if NetObj.isPrivateIP == True:
                         net.add_node(node,label=node,color="red",size=10)
                     else:
                         net.add_node(node,label=node,color="green",size=10)
             net.add_edge(nodes[0],nodes[1])
         try:
             net.show(domain + ".html")
+            print("Graph file {} generated successfully".format(domain + ".html"))
         except:
             print("File generation failed :(")
-            pass
-        print("Graph file {} generated successfuly YAY".format(domain + ".html"))
 
 
 

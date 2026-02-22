@@ -56,11 +56,8 @@ class Mycelium:
                 self.other_list.append(item.lower())
     
     def print_progress(self,list,text):
-        for i in range(0, 101, 10):
-            print("\r>> {} :{}%".format(text,i), end='')
-            sys.stdout.flush()
-            self.handle_list(list)
-        print("\r")
+        self.handle_list(list)
+        print(">> {} :done".format(text))
 
     def grow(self):
         print("Data aquisition started")
@@ -140,11 +137,11 @@ class Mycelium:
         for dom in (self.sub_list + self.other_list):
             try:
                 datas=socket.gethostbyname_ex(dom)
-                list=[]
+                ips=[]
                 for i in range(1,len(datas)):
                     if (''.join(datas[i]) != '') and (dom != ''.join(datas[i])):
-                        list.append(datas[i])
-                domain_list[dom]=list
+                        ips.append(datas[i])
+                domain_list[dom]=ips
             except:
                 continue
         print("DNS resolutions finished.")
