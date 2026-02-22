@@ -13,25 +13,52 @@ class GraphVisualization:
         self.visual.append(temp)
 
     def visualize(self,domain):
-        net = Network(notebook=True)
+        net = Network(height="100vh", width="100%", bgcolor="#0d1117", font_color="#c9d1d9")
         for nodes in self.visual:
             if nodes[0]==nodes[1]:
                 continue
             for node in nodes:
                 NetObj = NetObject(node)
                 if NetObj.isHost == True:
-                    net.add_node(node,label=node,color="blue",shape="diamond",size=10)
+                    net.add_node(node, label=node, shape="diamond", size=16,
+                        color={"background":"#1f6feb","border":"#58a6ff",
+                               "highlight":{"background":"#388bfd","border":"#79c0ff"}},
+                        font={"size":13,"color":"#e6edf3"})
                 elif NetObj.isHost == False:
                     if NetObj.isPrivateIP == True:
-                        net.add_node(node,label=node,color="red",size=10)
+                        net.add_node(node, label=node, shape="dot", size=12,
+                            color={"background":"#da3633","border":"#f85149",
+                                   "highlight":{"background":"#f85149","border":"#ff7b72"}},
+                            font={"size":11,"color":"#e6edf3"})
                     else:
-                        net.add_node(node,label=node,color="green",size=10)
-            net.add_edge(nodes[0],nodes[1])
+                        net.add_node(node, label=node, shape="dot", size=12,
+                            color={"background":"#238636","border":"#3fb950",
+                                   "highlight":{"background":"#2ea043","border":"#56d364"}},
+                            font={"size":11,"color":"#e6edf3"})
+            net.add_edge(nodes[0], nodes[1], color={"color":"#484f58","opacity":0.8}, width=1.5)
+        net.set_options("""
+        {
+          "physics": {
+            "solver": "forceAtlas2Based",
+            "forceAtlas2Based": {
+              "gravitationalConstant": -80,
+              "centralGravity": 0.01,
+              "springLength": 130,
+              "springConstant": 0.08,
+              "damping": 0.4
+            },
+            "maxVelocity": 50,
+            "stabilization": { "enabled": true, "iterations": 1000 }
+          },
+          "edges": { "smooth": { "type": "continuous" } },
+          "interaction": { "hover": true, "tooltipDelay": 200 }
+        }
+        """)
         try:
-            net.show(domain + ".html")
+            net.write_html(domain + ".html")
             print("Graph file {} generated successfully".format(domain + ".html"))
-        except:
-            print("File generation failed :(")
+        except Exception as e:
+            print("File generation failed :(", e)
 
 
 

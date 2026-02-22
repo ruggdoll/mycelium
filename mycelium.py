@@ -33,7 +33,9 @@ if __name__ == "__main__":
                             print("{}: {}".format(dom,item))
                 except:
                     continue
-    else: 
+    else:
+        if args.graph:
+            print("Warning: --graph requires --resolve to work.")
         if args.CSV:
             mushroom.Domain_CSV_output()
         else:
