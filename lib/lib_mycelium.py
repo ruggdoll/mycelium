@@ -2,11 +2,18 @@ import socket,sys,time
 from lib.rhizomorphe import lib_alienvault
 from lib.rhizomorphe import lib_archive
 from lib.rhizomorphe import lib_certspotter
+from lib.rhizomorphe import lib_chaos
+from lib.rhizomorphe import lib_columbus
 from lib.rhizomorphe import lib_crt
 from lib.rhizomorphe import lib_hackertarget
 from lib.rhizomorphe import lib_jldc
 from lib.rhizomorphe import lib_rapiddns
+from lib.rhizomorphe import lib_robtex
+from lib.rhizomorphe import lib_securitytrails
+from lib.rhizomorphe import lib_shodan
+from lib.rhizomorphe import lib_threatminer
 from lib.rhizomorphe import lib_urlscan
+from lib.rhizomorphe import lib_virustotal
 
 
 class Mycelium:
@@ -32,7 +39,16 @@ class Mycelium:
             'googlemail.com',
             'google.com',
             'cloudflaressl.com',
-            'ovh.net'
+            'ovh.net',
+            'ovh.fr',
+            'wanadoo.fr',
+            'orangecustomers.net',
+            'sfr.net',
+            'bbox.fr',
+            'free.fr',
+            'numericable.fr',
+            'fbxos.fr',
+            'abo.wanadoo.fr',
             )
         if candidate.endswith(forbidden):
             return True
@@ -61,89 +77,60 @@ class Mycelium:
                 if source:
                     self.domain_sources[item.lower()] = source
     
-    def print_progress(self,list,text):
-        self.handle_list(list, source=text)
-        print(">> {} :done".format(text))
+    def _run_worker(self, worker_fn, name):
+        try:
+            results = worker_fn(self.domain)
+            self.handle_list(results, source=name)
+            print("  [+] {:20s} ({} found)".format(name, len(results)))
+        except RuntimeError:
+            print("  [-] {:20s} no API key".format(name))
+        except Exception:
+            print("  [!] {:20s} unavailable".format(name))
 
     def grow(self):
-        print("Data aquisition started")
-        try:
-            self.print_progress(lib_alienvault.fetch_sub(self.domain),"Alienvault")
-        except:
-            print("worker Alienvault failed!\n")
-            pass
-        try:
-            self.print_progress(lib_archive.fetch_sub(self.domain),"Archive.org")
-        except:
-            print("worker Archive.org failed!\n")
-            pass
-        try:
-            self.print_progress(lib_certspotter.fetch_sub(self.domain),"Certspotter")
-        except:
-            print("worker Certspotter failed!\n")
-            pass
-        try:
-            self.print_progress(lib_crt.fetch_sub(self.domain),"CRT.sh")
-        except:
-            print("worker CRT.sh failed!\n")
-            pass
-        try:
-            self.print_progress(lib_hackertarget.fetch_sub(self.domain),"Hackertarget")
-        except:
-            print("worker Hackertarget failed!\n")
-            pass
-        try:
-            self.print_progress(lib_jldc.fetch_sub(self.domain),"JLDC")
-        except:
-            print("worker JLDC failed!\n")
-            pass
-        try:
-            self.print_progress(lib_rapiddns.fetch_sub(self.domain),"Rapiddns")
-        except:
-            print("worker Rapiddns failed!\n")
-            pass
-        try:
-            self.print_progress(lib_urlscan.fetch_sub(self.domain),"Urlscan")
-        except:
-            print("worker urlscan failed!\n")
-            pass
-        print("Data acquisition finished.\n")
+        print("\n[ {} ]\n".format(self.domain))
+        self._run_worker(lib_alienvault.fetch_sub,     "Alienvault")
+        self._run_worker(lib_archive.fetch_sub,        "Archive.org")
+        self._run_worker(lib_certspotter.fetch_sub,    "Certspotter")
+        self._run_worker(lib_crt.fetch_sub,            "CRT.sh")
+        self._run_worker(lib_hackertarget.fetch_sub,   "Hackertarget")
+        self._run_worker(lib_jldc.fetch_sub,           "JLDC")
+        self._run_worker(lib_rapiddns.fetch_sub,       "Rapiddns")
+        self._run_worker(lib_urlscan.fetch_sub,        "Urlscan")
+        self._run_worker(lib_columbus.fetch_sub,       "Columbus")
+        self._run_worker(lib_threatminer.fetch_sub,    "ThreatMiner")
+        self._run_worker(lib_robtex.fetch_sub,         "Robtex")
+        self._run_worker(lib_virustotal.fetch_sub,     "VirusTotal")
+        self._run_worker(lib_securitytrails.fetch_sub, "SecurityTrails")
+        self._run_worker(lib_chaos.fetch_sub,          "Chaos")
+        self._run_worker(lib_shodan.fetch_sub,         "Shodan")
+        print()
 
-    def Domain_CSV_output(self):
-        print("\n----8<----CSV_STARTS_HERE----8<----")
-        print("\"Index\";\"Domain\";\"Type\";")
-        i=1
-        for sub in self.sub_list:
-            print("\"{}\";\"{}\";\"subdomain\";".format(i,sub))
-            i += 1 
-        for other in self.other_list:
-            print("\"{}\";\"{}\";\"other\";".format(i,other))
-            i += 1
-        print("----8<----CSV_STOPS_HERE----8<----")
-    
-    def Domain_std_output(self):
-        print("\nFound {} subdomains and {} linked domains".format(
-            len(self.sub_list),
-            len(self.other_list)
-            ))
-        for sub in self.sub_list:
-            print("Subdomain : {}".format(sub))
-        for other in self.other_list:
-            print("Linked : {}".format(other))
+    def reverse_resolve(self, domain_list):
+        unique_ips = set()
+        for ips_lists in domain_list.values():
+            for iplist in ips_lists:
+                for ip in iplist:
+                    unique_ips.add(ip)
+        found = []
+        for ip in unique_ips:
+            try:
+                hostname = socket.gethostbyaddr(ip)[0]
+                found.append(hostname)
+            except socket.herror:
+                continue
+        self.handle_list(found, source="Reverse DNS")
 
     def resolve(self):
-        print("Performing DNS resolution, please wait...")
-        
         domain_list = {}
         for dom in (self.sub_list + self.other_list):
             try:
-                datas=socket.gethostbyname_ex(dom)
-                ips=[]
-                for i in range(1,len(datas)):
+                datas = socket.gethostbyname_ex(dom)
+                ips = []
+                for i in range(1, len(datas)):
                     if (''.join(datas[i]) != '') and (dom != ''.join(datas[i])):
                         ips.append(datas[i])
-                domain_list[dom]=ips
+                domain_list[dom] = ips
             except:
                 continue
-        print("DNS resolutions finished.")
         return domain_list

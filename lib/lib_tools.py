@@ -7,11 +7,60 @@ class GraphVisualization:
 
     def __init__(self):
         self.visual = []
+        self._edge_set = set()
 
     def addLink(self, a, b, kind="subdomain", label=""):
-        self.visual.append({"from": a, "to": b, "kind": kind, "label": label})
+        key = (a, b, kind)
+        if key not in self._edge_set:
+            self._edge_set.add(key)
+            self.visual.append({"from": a, "to": b, "kind": kind, "label": label})
 
-    def visualize(self, domain):
+    def _add_other_node(self, net, node_id):
+        net.add_node(node_id, label=node_id, shape="square", size=14,
+            color={"background": "#6e40c9", "border": "#bc8cff",
+                   "highlight": {"background": "#8957e5", "border": "#d2a8ff"}},
+            font={"size": 13, "color": "#e6edf3"})
+
+    def _build_sidebar(self, domain, all_subs, all_others):
+        def li(d, color):
+            return (
+                '<li style="padding:3px 0;word-break:break-all">'
+                '<a href="http://{d}" target="_blank" style="color:{c};text-decoration:none;'
+                'font-family:monospace;font-size:12px">{d}</a></li>'
+            ).format(d=d, c=color)
+        sub_items  = "".join(li(d, "#58a6ff") for d in sorted(all_subs))
+        other_items = "".join(li(d, "#bc8cff") for d in sorted(all_others))
+        return (
+            '<div id="mycelium-sidebar" style="width:300px;min-width:300px;height:100vh;'
+            'overflow-y:auto;background:#0d1117;border-left:1px solid #21262d;'
+            'color:#c9d1d9;box-sizing:border-box;flex-shrink:0">'
+            '<div style="padding:14px 16px;border-bottom:1px solid #21262d;position:sticky;'
+            'top:0;background:#0d1117;z-index:10">'
+            '<span style="color:#e3b341;font-size:16px;font-weight:bold">&#9733; {domain}</span>'
+            '</div>'
+            '<div style="padding:12px 16px">'
+            '<div style="color:#58a6ff;font-size:12px;font-weight:600;margin-bottom:8px;'
+            'text-transform:uppercase;letter-spacing:.5px">'
+            'Subdomains <span style="color:#484f58;font-weight:normal">({nsub})</span></div>'
+            '<ul style="margin:0;padding:0;list-style:none">{sub}</ul>'
+            '</div>'
+            '<div style="padding:12px 16px;border-top:1px solid #21262d">'
+            '<div style="color:#bc8cff;font-size:12px;font-weight:600;margin-bottom:8px;'
+            'text-transform:uppercase;letter-spacing:.5px">'
+            'Linked <span style="color:#484f58;font-weight:normal">({nother})</span></div>'
+            '<ul style="margin:0;padding:0;list-style:none">{other}</ul>'
+            '</div>'
+            '</div>'
+        ).format(domain=domain, nsub=len(all_subs), nother=len(all_others),
+                 sub=sub_items, other=other_items)
+
+    def visualize(self, domain, pivot_domains=None, all_subs=None, all_others=None):
+        if pivot_domains is None:
+            pivot_domains = set()
+        if all_subs is None:
+            all_subs = {}
+        if all_others is None:
+            all_others = {}
         net = Network(height="100vh", width="100%", bgcolor="#0d1117", font_color="#c9d1d9")
 
         # Root domain — épinglé au centre
@@ -23,10 +72,24 @@ class GraphVisualization:
 
         added_nodes = {domain}
 
+        # Pré-insertion des nœuds pivots (triangles ambrés)
+        for pdom in pivot_domains:
+            if pdom not in added_nodes:
+                net.add_node(pdom, label=pdom, title=pdom, shape="triangle", size=22,
+                    color={"background": "#9e6a03", "border": "#e3b341",
+                           "highlight": {"background": "#b08800", "border": "#f0c059"}},
+                    font={"size": 14, "color": "#ffffff"})
+                added_nodes.add(pdom)
+
         for link in self.visual:
             a, b, kind, label = link["from"], link["to"], link["kind"], link["label"]
             if a == b:
                 continue
+
+            # Garde : si 'a' n'est pas encore dans le graphe, on l'ajoute
+            if a not in added_nodes:
+                self._add_other_node(net, a)
+                added_nodes.add(a)
 
             if b not in added_nodes:
                 NetObj = NetObject(b)
@@ -38,10 +101,7 @@ class GraphVisualization:
                                    "highlight": {"background": "#388bfd", "border": "#79c0ff"}},
                             font={"size": 13, "color": "#e6edf3"})
                     else:
-                        net.add_node(b, label=b, shape="square", size=14,
-                            color={"background": "#6e40c9", "border": "#bc8cff",
-                                   "highlight": {"background": "#8957e5", "border": "#d2a8ff"}},
-                            font={"size": 13, "color": "#e6edf3"})
+                        self._add_other_node(net, b)
                 else:
                     if NetObj.isPrivateIP:
                         net.add_node(b, label=b, shape="dot", size=11,
@@ -81,8 +141,20 @@ class GraphVisualization:
           "interaction": { "hover": true, "tooltipDelay": 200 }
         }
         """)
+        css = (
+            '<style>'
+            'html,body{margin:0;padding:0;height:100%;overflow:hidden}'
+            'body{display:flex!important;flex-direction:row;background:#0d1117}'
+            '#mynetwork{flex:1!important;height:100vh!important;min-width:0}'
+            '</style>'
+        )
+        sidebar = self._build_sidebar(domain, all_subs, all_others)
         try:
-            net.write_html(domain + ".html")
+            html = net.generate_html()
+            html = html.replace('</head>', css + '</head>', 1)
+            html = html.replace('</body>', sidebar + '</body>', 1)
+            with open(domain + ".html", "w") as f:
+                f.write(html)
             print("Graph file {} generated successfully".format(domain + ".html"))
         except Exception as e:
             print("File generation failed :(", e)
