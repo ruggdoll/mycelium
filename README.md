@@ -25,7 +25,7 @@ python3 mycelium.py <domain> [--depth N] [--active]
 | Option | Description |
 |--------|-------------|
 | `--depth N` | Pivot on linked domains up to N levels deep (default: 1) |
-| `--active` | Enable active dissectors: DNS resolution + reverse DNS lookup |
+| `--active` | Enable active dissectors: DNS queries, zone transfer attempt, SPF/DMARC analysis, subdomain takeover check |
 
 ### Examples
 
@@ -99,10 +99,27 @@ CENSYS_API_SECRET=
 
 ### Active — requires `--active`
 
+Direct interaction with the target's DNS infrastructure.
+
 | Technique | Description |
 |-----------|-------------|
-| DNS resolution | Resolves A/AAAA records for all discovered domains |
-| Reverse DNS | PTR lookup on resolved IPs to discover additional hostnames |
+| **DNS resolution** | Resolves A/AAAA records for all discovered domains |
+| **Reverse DNS** | PTR lookup on resolved IPs to discover additional hostnames |
+| **DNS records** | Queries NS, MX, SOA, TXT, CAA — maps mail infrastructure and third-party services |
+| **SPF parsing** | Recursively follows `include:` directives to map the full mail sending infrastructure |
+| **Zone transfer (AXFR)** | Attempts zone transfer on each nameserver — reveals all records if misconfigured |
+
+#### Security findings
+
+After active dissection, Mycelium reports DNS misconfigurations sorted by severity:
+
+| Level | Checks |
+|-------|--------|
+| `CRITICAL` | SPF missing or `+all`, DMARC missing, zone transfer open, subdomain takeover candidate |
+| `WARNING` | SPF `~all` / `?all`, DMARC `p=none`, no CAA record, wildcard DNS |
+| `OK` | Confirmations: AXFR refused, DMARC enforced, no wildcard |
+
+Subdomain takeover detection fingerprints 18 cloud services (GitHub Pages, Heroku, S3, Azure, Netlify, Shopify, Fastly, …) by following CNAME chains and matching service-specific error pages.
 
 ---
 
