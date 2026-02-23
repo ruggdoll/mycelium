@@ -77,6 +77,9 @@ if __name__ == "__main__":
                 all_others[other] = m.domain
 
     # --- Dissecteurs actifs ---
+    axfr_lines = []
+    spf_lines  = []
+
     if args.active:
         print("\nActive dissectors\n")
 
@@ -142,6 +145,19 @@ if __name__ == "__main__":
             print("\nDiscovered via reverse DNS")
             for d in sorted(new_linked):
                 print("  {}".format(d))
+
+    # --- Security findings (mode --active) ---
+    if args.active:
+        print("\nSecurity findings\n")
+        findings = lib_active.security_findings(
+            root,
+            list(all_subs.keys()),
+            axfr_lines,
+            spf_lines,
+        )
+        level_order = {"CRITICAL": 0, "WARNING": 1, "INFO": 2, "OK": 3}
+        for level, msg in sorted(findings, key=lambda x: level_order.get(x[0], 9)):
+            print("  [{:8s}] {}".format(level, msg))
 
     # --- Sortie console ---
     print("\nSubdomains ({})".format(len(all_subs)))
