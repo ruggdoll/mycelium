@@ -115,11 +115,15 @@ After active dissection, Mycelium reports DNS misconfigurations sorted by severi
 
 | Level | Checks |
 |-------|--------|
-| `CRITICAL` | SPF missing or `+all`, DMARC missing, zone transfer open, subdomain takeover candidate |
-| `WARNING` | SPF `~all` / `?all`, DMARC `p=none`, no CAA record, wildcard DNS |
-| `OK` | Confirmations: AXFR refused, DMARC enforced, no wildcard |
+| `CRITICAL` | SPF missing or `+all`, SPF lookup count > 10 (RFC 7208 permerror), DMARC missing, zone transfer open, dangling CNAME (target NXDOMAIN), subdomain takeover candidate, TLS certificate expired or expiring < 14 days, TLS cert invalid |
+| `WARNING` | SPF `~all` / `?all` / no `all`, DMARC `p=none`, DMARC missing `rua=` reporting, no DKIM record, no MTA-STS, no CAA record, no DNSSEC, all nameservers in same /24 (SPOF), wildcard DNS, TLS certificate expiring < 30 days |
+| `OK` | Confirmations: AXFR refused, SPF `-all`, DMARC enforced, DKIM present, MTA-STS present, DNSSEC present, NSes in multiple subnets, no wildcard DNS, TLS certificate healthy |
 
-Subdomain takeover detection fingerprints 18 cloud services (GitHub Pages, Heroku, S3, Azure, Netlify, Shopify, Fastly, …) by following CNAME chains and matching service-specific error pages.
+**Email security checks:** SPF policy + recursive DNS lookup count, DMARC policy + aggregate reporting, DKIM (12 common selectors), MTA-STS transport security.
+
+**Infrastructure checks:** DNSSEC (DNSKEY presence), NS diversity (all NSes in same /24 = single point of failure), wildcard DNS, TLS certificate validity and expiry countdown.
+
+**Takeover checks:** Dangling CNAMEs (CNAME target resolves to NXDOMAIN) and fingerprinted subdomain takeover across 18 cloud services (GitHub Pages, Heroku, S3, Azure, Netlify, Shopify, Fastly, …).
 
 ---
 
