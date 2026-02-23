@@ -5,7 +5,7 @@ def fetch_sub(domain):
     session = requests.session()
     session.headers = {"User-Agent": "Mozilla/5.0"}
     url = "https://crt.sh/?q=%25.{}&output=json".format(domain)
-    req = session.get(url, timeout=30)
+    req = session.get(url, timeout=60)
     req.raise_for_status()
     domains = []
     for entry in json.loads(req.text):
