@@ -2,6 +2,7 @@ import argparse
 import os
 from lib.lib_mycelium import Mycelium
 from lib.lib_tools import GraphVisualization
+from lib import lib_active
 
 
 def load_keys(path="keys.conf"):
@@ -17,12 +18,13 @@ def load_keys(path="keys.conf"):
             if key and value and key not in os.environ:
                 os.environ[key] = value
 
+
 if __name__ == "__main__":
     load_keys()
     parser = argparse.ArgumentParser()
     parser.add_argument("domain", help="Domain name to analyse")
     parser.add_argument("--depth", help="Pivot depth on linked domains (default: 1)", type=int, default=1, metavar="N")
-    parser.add_argument("--active", help="Enable active dissectors (DNS resolution) — disabled by default (TLP/PAP RED)", action="store_true")
+    parser.add_argument("--active", help="Enable active dissectors — disabled by default (TLP/PAP RED)", action="store_true")
     args = parser.parse_args()
 
     if args.depth < 1:
@@ -48,8 +50,9 @@ if __name__ == "__main__":
             m.grow()
 
             if args.active:
-                mylist = m.resolve()
-                m.reverse_resolve(mylist)
+                mylist = lib_active.resolve(m.sub_list + m.other_list)
+                reverse = lib_active.reverse_resolve(mylist)
+                m.handle_list(reverse, source="Reverse DNS")
                 all_mylist.update(mylist)
 
             all_mushrooms.append((m, current_depth))
@@ -62,7 +65,7 @@ if __name__ == "__main__":
 
         pending = next_pending
 
-    # Agréger les résultats
+    # Agréger les résultats passifs
     all_subs = {}
     all_others = {}
     for (m, depth_level) in all_mushrooms:
@@ -73,20 +76,47 @@ if __name__ == "__main__":
             if other not in all_others:
                 all_others[other] = m.domain
 
-    # --- Sortie console ---
-    print("Subdomains ({})".format(len(all_subs)))
-    for sub in sorted(all_subs):
-        print("  {}".format(sub))
-    if not all_subs:
-        print("  (none)")
-
-    print("\nLinked ({})".format(len(all_others)))
-    for other in sorted(all_others):
-        print("  {}".format(other))
-    if not all_others:
-        print("  (none)")
-
+    # --- Dissecteurs actifs ---
     if args.active:
+        print("\nActive dissectors\n")
+
+        # DNS records (NS, MX, TXT, SOA, CAA)
+        print("DNS records")
+        rec_hosts, rec_lines = lib_active.dns_records(root)
+        for l in rec_lines:
+            print(l)
+        for h in rec_hosts:
+            if h.endswith("." + root) or h == root:
+                all_subs.setdefault(h, "DNS records")
+            else:
+                all_others.setdefault(h, "DNS records")
+
+        # SPF
+        print("\nSPF")
+        spf_hosts, spf_lines = lib_active.spf_harvest(root)
+        if spf_lines:
+            for l in spf_lines:
+                print(l)
+            for h in spf_hosts:
+                if h.endswith("." + root) or h == root:
+                    all_subs.setdefault(h, "SPF")
+                else:
+                    all_others.setdefault(h, "SPF")
+        else:
+            print("  (no SPF record)")
+
+        # Zone transfer
+        print("\nZone transfer")
+        axfr_hosts, axfr_lines = lib_active.zone_transfer(root)
+        for l in axfr_lines:
+            print(l)
+        for h in axfr_hosts:
+            if h.endswith("." + root) or h == root:
+                all_subs.setdefault(h, "AXFR")
+            else:
+                all_others.setdefault(h, "AXFR")
+
+        # DNS resolutions
         print("\nDNS resolutions")
         seen_domains = set()
         for (m, depth_level) in all_mushrooms:
@@ -100,8 +130,9 @@ if __name__ == "__main__":
                     for iplist in all_mylist[dom]:
                         for ip in iplist:
                             print("  {}  {}".format(dom, ip))
-                except:
+                except Exception:
                     continue
+
         new_linked = set()
         for (m, _) in all_mushrooms:
             for d in m.other_list:
@@ -111,6 +142,19 @@ if __name__ == "__main__":
             print("\nDiscovered via reverse DNS")
             for d in sorted(new_linked):
                 print("  {}".format(d))
+
+    # --- Sortie console ---
+    print("\nSubdomains ({})".format(len(all_subs)))
+    for sub in sorted(all_subs):
+        print("  {}".format(sub))
+    if not all_subs:
+        print("  (none)")
+
+    print("\nLinked ({})".format(len(all_others)))
+    for other in sorted(all_others):
+        print("  {}".format(other))
+    if not all_others:
+        print("  (none)")
 
     # --- Sortie HTML (graphe + liste) ---
     G = GraphVisualization()

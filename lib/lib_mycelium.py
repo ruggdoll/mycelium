@@ -1,4 +1,4 @@
-import socket,sys,time
+import socket
 from lib.rhizomorphe import lib_alienvault
 from lib.rhizomorphe import lib_archive
 from lib.rhizomorphe import lib_bevigil
@@ -118,31 +118,3 @@ class Mycelium:
         self._run_worker(lib_virustotal.fetch_sub,     "VirusTotal")
         print()
 
-    def reverse_resolve(self, domain_list):
-        unique_ips = set()
-        for ips_lists in domain_list.values():
-            for iplist in ips_lists:
-                for ip in iplist:
-                    unique_ips.add(ip)
-        found = []
-        for ip in unique_ips:
-            try:
-                hostname = socket.gethostbyaddr(ip)[0]
-                found.append(hostname)
-            except socket.herror:
-                continue
-        self.handle_list(found, source="Reverse DNS")
-
-    def resolve(self):
-        domain_list = {}
-        for dom in (self.sub_list + self.other_list):
-            try:
-                datas = socket.gethostbyname_ex(dom)
-                ips = []
-                for i in range(1, len(datas)):
-                    if (''.join(datas[i]) != '') and (dom != ''.join(datas[i])):
-                        ips.append(datas[i])
-                domain_list[dom] = ips
-            except:
-                continue
-        return domain_list
