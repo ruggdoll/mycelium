@@ -1,8 +1,24 @@
 import argparse
+import os
 from lib.lib_mycelium import Mycelium
 from lib.lib_tools import GraphVisualization
 
+
+def load_keys(path="keys.conf"):
+    if not os.path.isfile(path):
+        return
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            key, value = key.strip(), value.strip()
+            if key and value and key not in os.environ:
+                os.environ[key] = value
+
 if __name__ == "__main__":
+    load_keys()
     parser = argparse.ArgumentParser()
     parser.add_argument("domain", help="Domain name to analyse")
     parser.add_argument("--depth", help="Pivot depth on linked domains (default: 1)", type=int, default=1, metavar="N")

@@ -1,0 +1,15 @@
+# Mycelium — API keys configuration
+# Copier ce fichier en keys.conf et renseigner les clés disponibles.
+# keys.conf est gitignore — ne jamais committer les clés.
+
+OTX_API_KEY=
+VT_API_KEY=
+SECURITYTRAILS_API_KEY=
+CHAOS_API_KEY=
+SHODAN_API_KEY=
+CENSYS_API_ID=
+CENSYS_API_SECRET=
+BEVIGIL_API_KEY=
+FULLHUNT_API_KEY=
+BINARYEDGE_API_KEY=
+GITHUB_TOKEN=

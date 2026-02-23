@@ -1,6 +1,10 @@
+keys.conf
 *.html
-  __pycache__/
-  myvenv/
-  lib/bindings/
-  lib/tom-select/
-  lib/vis-9.1.2/
+__pycache__/
+lib/__pycache__/
+lib/rhizomorphe/__pycache__/
+lib/bindings/
+lib/tom-select/
+lib/vis-9.1.2/
+myvenv/
+*.pyc
