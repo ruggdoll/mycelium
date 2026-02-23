@@ -39,9 +39,8 @@ python3 mycelium.py example.com --depth 2
 # Full run with DNS resolution
 python3 mycelium.py example.com --active
 
-# With API keys loaded
-export VT_API_KEY="..."
-export GITHUB_TOKEN="..."
+# With API keys
+cp keys.conf.example keys.conf   # puis éditer keys.conf
 python3 mycelium.py example.com
 ```
 
@@ -88,18 +87,14 @@ Sources are queried in parallel. Workers without a configured API key are skippe
 | **Shodan** | `SHODAN_API_KEY` | limited | Internet scanning, DNS data |
 | **VirusTotal** | `VT_API_KEY` | 500 req/day | Passive DNS + crawl data |
 
-```bash
-export OTX_API_KEY="..."
-export BEVIGIL_API_KEY="..."
-export BINARYEDGE_API_KEY="..."
-export CENSYS_API_ID="..."
-export CENSYS_API_SECRET="..."
-export CHAOS_API_KEY="..."
-export FULLHUNT_API_KEY="..."
-export GITHUB_TOKEN="..."
-export SECURITYTRAILS_API_KEY="..."
-export SHODAN_API_KEY="..."
-export VT_API_KEY="..."
+Les clés se renseignent dans `keys.conf` (copié depuis `keys.conf.example`, gitignore) :
+
+```ini
+OTX_API_KEY=your_key_here
+VT_API_KEY=
+CENSYS_API_ID=
+CENSYS_API_SECRET=
+...
 ```
 
 ### Active — requires `--active`
