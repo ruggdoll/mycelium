@@ -9,6 +9,7 @@ from lib.rhizomorphe import lib_chaos
 from lib.rhizomorphe import lib_columbus
 from lib.rhizomorphe import lib_commoncrawl
 from lib.rhizomorphe import lib_crt
+from lib.rhizomorphe import lib_duckduckgo
 from lib.rhizomorphe import lib_fullhunt
 from lib.rhizomorphe import lib_github
 from lib.rhizomorphe import lib_hackertarget
