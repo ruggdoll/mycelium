@@ -1,25 +1,25 @@
 import requests
 import re
 
-class DuckDuckGo:
+def fetch_sub(domain):
     """
-    Exploitation des résultats de recherche DuckDuckGo pour trouver des sous-domaines indexés.
+    Scrape DuckDuckGo (HTML version) for indexed subdomains.
     """
-    def __init__(self, domain):
-        self.domain = domain
-        self.url = f"https://duckduckgo.com/html/?q=site%3A{domain}"
-
-    def get_data(self):
-        results = set()
-        try:
-            headers = {'User-Agent': 'Mozilla/5.0'}
-            r = requests.get(self.url, headers=headers, timeout=10)
-            if r.status_code == 200:
-                # Regex pour isoler les domaines dans les snippets/liens
-                pattern = re.compile(r'([\w\.-]+\.' + re.escape(self.domain) + r')')
-                matches = pattern.findall(r.text)
-                for m in matches:
-                    results.add(m.lower())
-        except:
-            pass
-        return list(results)
+    results = set()
+    try:
+        # L'endpoint /html/ est plus simple à parser sans JS
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0'}
+        url = f"https://duckduckgo.com/html/?q=site%3A{domain}"
+        
+        r = requests.get(url, headers=headers, timeout=10)
+        if r.status_code == 200:
+            # Extraction des patterns qui matchent <sub.domain.tld>
+            matches = re.findall(r'([\w\.-]+\.' + re.escape(domain) + r')', r.text)
+            for m in matches:
+                # Nettoyage basique pour éviter les résidus HTML
+                clean_m = m.lower().strip('.')
+                if clean_m.endswith(domain):
+                    results.add(clean_m)
+    except:
+        pass
+    return list(results)
