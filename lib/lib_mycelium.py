@@ -17,7 +17,7 @@ from lib.rhizomorphe import lib_rapiddns
 from lib.rhizomorphe import lib_readcsp
 from lib.rhizomorphe import lib_robtex
 from lib.rhizomorphe import lib_securitytrails
-from lib.rhizomorphe import lib_subdomainecenter
+from lib.rhizomorphe import lib_subdomaincenter
 from lib.rhizomorphe import lib_shodan
 from lib.rhizomorphe import lib_threatminer
 from lib.rhizomorphe import lib_urlscan
