@@ -1,5 +1,6 @@
 import requests
 import re
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def fetch_sub(domain):
     """
