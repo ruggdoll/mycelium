@@ -15,6 +15,7 @@ from lib.rhizomorphe import lib_github
 from lib.rhizomorphe import lib_hackertarget
 from lib.rhizomorphe import lib_jldc
 from lib.rhizomorphe import lib_rapiddns
+from lib.rhizomorphe import lib_readcsp
 from lib.rhizomorphe import lib_robtex
 from lib.rhizomorphe import lib_securitytrails
 from lib.rhizomorphe import lib_shodan
@@ -106,11 +107,13 @@ class Mycelium:
         self._run_worker(lib_columbus.fetch_sub,       "Columbus")
         self._run_worker(lib_commoncrawl.fetch_sub,    "CommonCrawl")
         self._run_worker(lib_crt.fetch_sub,            "CRT.sh")
+        self._run_worker(lib_duckduckgo.fetch_sub,     "DuckDuckGo")
         self._run_worker(lib_fullhunt.fetch_sub,       "Fullhunt")
         self._run_worker(lib_github.fetch_sub,         "GitHub")
         self._run_worker(lib_hackertarget.fetch_sub,   "Hackertarget")
         self._run_worker(lib_jldc.fetch_sub,           "JLDC")
         self._run_worker(lib_rapiddns.fetch_sub,       "Rapiddns")
+        self._run_worker(lib_readcsp.fetch_sub,        "CSP extraction")
         self._run_worker(lib_robtex.fetch_sub,         "Robtex")
         self._run_worker(lib_securitytrails.fetch_sub, "SecurityTrails")
         self._run_worker(lib_shodan.fetch_sub,         "Shodan")
@@ -118,4 +121,3 @@ class Mycelium:
         self._run_worker(lib_urlscan.fetch_sub,        "Urlscan")
         self._run_worker(lib_virustotal.fetch_sub,     "VirusTotal")
         print()
-
