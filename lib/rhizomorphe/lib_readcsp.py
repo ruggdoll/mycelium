@@ -1,26 +1,28 @@
 import requests
 import re
 
-class PivotsCSP:
+def fetch_sub(domain):
     """
-    Extracts subdomains from Content-Security-Policy (CSP) headers.
-    High-fidelity source: if a domain is in the CSP, it's almost certainly active.
+    Read Content-Security-Policy (CSP) headers to find linked subdomains.
     """
-    def __init__(self, domain):
-        self.domain = domain
-        self.url = f"https://{domain}"
-
-    def get_data(self):
-        results = set()
-        try:
-            # On fait un HEAD pour ne pas charger toute la page
-            r = requests.head(self.url, timeout=5, allow_redirects=True)
-            csp = r.headers.get('Content-Security-Policy', '')
-            
-            # Extraction de tout ce qui ressemble à un sous-domaine de la cible
-            matches = re.findall(r'([\w\.-]+\.' + re.escape(self.domain) + r')', csp)
+    results = set()
+    try:
+        # On tente de récupérer les headers sur le domaine racine
+        # allow_redirects=True est crucial car bcp de domaines redirigent vers www
+        r = requests.get(f"https://{domain}", timeout=5, allow_redirects=True, verify=False)
+        
+        # On cherche le header CSP (insensible à la casse)
+        csp_header = ""
+        for h in r.headers:
+            if h.lower() == 'content-security-policy':
+                csp_header = r.headers[h]
+                break
+        
+        if csp_header:
+            # Extraction de tous les domaines appartenant à la cible listés dans le CSP
+            matches = re.findall(r'([\w\.-]+\.' + re.escape(domain) + r')', csp_header)
             for m in matches:
                 results.add(m.lower().strip('.'))
-        except:
-            pass
-        return list(results)
+    except:
+        pass
+    return list(results)
