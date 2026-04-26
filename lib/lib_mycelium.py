@@ -9,7 +9,6 @@ from lib.rhizomorphe import lib_chaos
 from lib.rhizomorphe import lib_columbus
 from lib.rhizomorphe import lib_commoncrawl
 from lib.rhizomorphe import lib_crt
-from lib.rhizomorphe import lib_duckduckgo
 from lib.rhizomorphe import lib_fullhunt
 from lib.rhizomorphe import lib_github
 from lib.rhizomorphe import lib_hackertarget
@@ -18,6 +17,7 @@ from lib.rhizomorphe import lib_rapiddns
 from lib.rhizomorphe import lib_readcsp
 from lib.rhizomorphe import lib_robtex
 from lib.rhizomorphe import lib_securitytrails
+from lib.rhizomorphe import lib_subdomainecenter
 from lib.rhizomorphe import lib_shodan
 from lib.rhizomorphe import lib_threatminer
 from lib.rhizomorphe import lib_urlscan
@@ -107,7 +107,6 @@ class Mycelium:
         self._run_worker(lib_columbus.fetch_sub,       "Columbus")
         self._run_worker(lib_commoncrawl.fetch_sub,    "CommonCrawl")
         self._run_worker(lib_crt.fetch_sub,            "CRT.sh")
-        self._run_worker(lib_duckduckgo.fetch_sub,     "DuckDuckGo")
         self._run_worker(lib_fullhunt.fetch_sub,       "Fullhunt")
         self._run_worker(lib_github.fetch_sub,         "GitHub")
         self._run_worker(lib_hackertarget.fetch_sub,   "Hackertarget")
@@ -116,6 +115,7 @@ class Mycelium:
         self._run_worker(lib_readcsp.fetch_sub,        "CSP extraction")
         self._run_worker(lib_robtex.fetch_sub,         "Robtex")
         self._run_worker(lib_securitytrails.fetch_sub, "SecurityTrails")
+        self._run_worker(lib_subdomaincenter.fetch_sub,    "Subdomain Center")
         self._run_worker(lib_shodan.fetch_sub,         "Shodan")
         self._run_worker(lib_threatminer.fetch_sub,    "ThreatMiner")
         self._run_worker(lib_urlscan.fetch_sub,        "Urlscan")
