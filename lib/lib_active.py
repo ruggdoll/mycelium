@@ -8,6 +8,36 @@ import dns.zone
 import dns.query
 import dns.rdatatype
 import dns.exception
+from lib.active import lib_readcsp
+from lib.active import lib_dnsbf
+
+# ---------------------------------------------------------------------------
+# Dissecteurs actifs modulaires
+# Même interface que les passifs : fetch_sub(domain) -> [str]
+# Ajoutez ici tout nouveau dissecteur actif.
+# ---------------------------------------------------------------------------
+
+_ACTIVE_DISSECTORS = [
+    (lib_readcsp.fetch_sub, "CSP headers"),
+    (lib_dnsbf.fetch_sub,   "DNS brute-force"),
+]
+
+
+def run_active_dissectors(domain):
+    """
+    Exécute les dissecteurs actifs modulaires (contact direct avec la cible).
+    Retourne (found_list, output_lines) — même convention que dns_records/spf_harvest.
+    """
+    found = []
+    lines = []
+    for fn, name in _ACTIVE_DISSECTORS:
+        try:
+            results = fn(domain)
+            found.extend(results)
+            lines.append("  [+] {:20s} ({} found)".format(name, len(results)))
+        except Exception as e:
+            lines.append("  [!] {:20s} failed ({})".format(name, type(e).__name__))
+    return found, lines
 
 
 # ---------------------------------------------------------------------------
