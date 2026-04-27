@@ -119,6 +119,17 @@ if __name__ == "__main__":
             else:
                 all_others.setdefault(h, "AXFR")
 
+        # Dissecteurs actifs modulaires (CSP headers, DNS brute-force, …)
+        print("\nActive dissectors")
+        active_hosts, active_lines = lib_active.run_active_dissectors(root)
+        for l in active_lines:
+            print(l)
+        for h in active_hosts:
+            if h.endswith("." + root) or h == root:
+                all_subs.setdefault(h, "Active")
+            else:
+                all_others.setdefault(h, "Active")
+
         # DNS resolutions
         print("\nDNS resolutions")
         seen_domains = set()
