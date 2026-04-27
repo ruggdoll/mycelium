@@ -14,7 +14,6 @@ from lib.rhizomorphe import lib_github
 from lib.rhizomorphe import lib_hackertarget
 from lib.rhizomorphe import lib_jldc
 from lib.rhizomorphe import lib_rapiddns
-from lib.rhizomorphe import lib_readcsp
 from lib.rhizomorphe import lib_robtex
 from lib.rhizomorphe import lib_securitytrails
 from lib.rhizomorphe import lib_subdomaincenter
@@ -112,7 +111,6 @@ class Mycelium:
         self._run_worker(lib_hackertarget.fetch_sub,   "Hackertarget")
         self._run_worker(lib_jldc.fetch_sub,           "JLDC")
         self._run_worker(lib_rapiddns.fetch_sub,       "Rapiddns")
-        self._run_worker(lib_readcsp.fetch_sub,        "CSP extraction")
         self._run_worker(lib_robtex.fetch_sub,         "Robtex")
         self._run_worker(lib_securitytrails.fetch_sub, "SecurityTrails")
         self._run_worker(lib_subdomaincenter.fetch_sub,    "Subdomain Center")
